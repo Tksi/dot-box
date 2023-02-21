@@ -1,101 +1,149 @@
 <script lang="ts">
-  type Paper = { top: number; left: number; right: number; bottom: number }[][];
+  type Paper = { top: string; left: string; right: string; bottom: string }[][];
 
   const paper: Paper = [
     [
-      { top: 0, left: 0, bottom: 0, right: 0 },
-      { top: 0, left: 0, bottom: 0, right: 0 },
+      { top: '', left: '', bottom: '', right: '' },
+      { top: '', left: '', bottom: '', right: '' },
+      { top: '', left: '', bottom: '', right: '' },
     ],
     [
-      { top: 0, left: 0, bottom: 0, right: 0 },
-      { top: 0, left: 0, bottom: 0, right: 0 },
+      { top: '', left: '', bottom: '', right: '' },
+      { top: '', left: '', bottom: '', right: '' },
+      { top: '', left: '', bottom: '', right: '' },
+    ],
+    [
+      { top: '', left: '', bottom: '', right: '' },
+      { top: '', left: '', bottom: '', right: '' },
+      { top: '', left: '', bottom: '', right: '' },
     ],
   ];
 
-  const renderPaper = (paper: Paper) => {
-    // TODO
+  const convertPaperForRender = (paper: Paper) => {
+    let renderedPaper: ({
+      row: number;
+      col: number;
+      position: 'top' | 'left' | 'right' | 'bottom' | 'box';
+      value: string | boolean;
+    } | null)[][] = Array(paper.length * 3)
+      .fill('')
+      .map(() => Array(paper[0].length * 3).fill(''));
+    for (const [i, row] of Object.entries(paper)) {
+      for (const [j, col] of Object.entries(row)) {
+        for (let k = 0; k < 3; k++) {
+          if (k === 0 || k === 2) {
+            renderedPaper[Number(i) * 3 + k][Number(j) * 3] = null;
+            renderedPaper[Number(i) * 3 + k][Number(j) * 3 + 2] = null;
+            if (k == 0) {
+              renderedPaper[Number(i) * 3 + k][Number(j) * 3 + 1] = {
+                row: Number(i),
+                col: Number(j),
+                position: 'top',
+                value: col.top,
+              };
+            } else {
+              renderedPaper[Number(i) * 3 + k][Number(j) * 3 + 1] = {
+                row: Number(i),
+                col: Number(j),
+                position: 'bottom',
+                value: col.bottom,
+              };
+            }
+          } else {
+            renderedPaper[Number(i) * 3 + k][Number(j) * 3] = {
+              row: Number(i),
+              col: Number(j),
+              position: 'left',
+              value: col.left,
+            };
+            renderedPaper[Number(i) * 3 + k][Number(j) * 3 + 1] = {
+              row: Number(i),
+              col: Number(j),
+              position: 'box',
+              value: false,
+            };
+            renderedPaper[Number(i) * 3 + k][Number(j) * 3 + 2] = {
+              row: Number(i),
+              col: Number(j),
+              position: 'right',
+              value: col.right,
+            };
+          }
+        }
+      }
+    }
+    return renderedPaper.flat().flat();
   };
 
-  const renderedPaper = [
-    '.',
-    '00T',
-    '.',
-    '.',
-    '01T',
-    '.',
-    '00L',
-    '00',
-    '00R',
-    '01L',
-    '01R',
-    '01L',
-    '.',
-    '00B',
-    '.',
-    '.',
-    '01B',
-    '.',
-    '.',
-    '10T',
-    '.',
-    '.',
-    '11T',
-    '.',
-    '10L',
-    '10',
-    '10R',
-    '11L',
-    '11',
-    '11R',
-    '.',
-    '10B',
-    '.',
-    '.',
-    '11B',
-    '.',
-  ];
+  let hoverWith: {
+    row: number;
+    col: number;
+    position: 'top' | 'left' | 'right' | 'bottom';
+  } = { row: -1, col: -1, position: 'top' };
 </script>
 
-<div class="container">
-  <span>.</span>
-  <span>00T</span>
-  <span>.</span>
-  <span>.</span>
-  <span>01T</span>
-  <span>.</span>
-  <span>00L</span>
-  <span>00</span>
-  <span>00R</span>
-  <span>01L</span>
-  <span>01R</span>
-  <span>01L</span>
-  <span>.</span>
-  <span>00B</span>
-  <span>.</span>
-  <span>.</span>
-  <span>01B</span>
-  <span>.</span>
-  <span>.</span>
-  <span>10T</span>
-  <span>.</span>
-  <span>.</span>
-  <span>11T</span>
-  <span>.</span>
-  <span>10L</span>
-  <span>10</span>
-  <span>10R</span>
-  <span>11L</span>
-  <span>11</span>
-  <span>11R</span>
-  <span>.</span>
-  <span>10B</span>
-  <span>.</span>
-  <span>.</span>
-  <span>11B</span>
-  <span>.</span>
+<div
+  class="container"
+  style="--colums: {`10px 25px 5px ${'5px 25px 5px '.repeat(
+    paper[0].length - 2
+  )}5px 25px 10px`}; --rows: {`10px 25px 5px ${'5px 25px 5px '.repeat(
+    paper.length - 2
+  )}5px 25px 10px`}"
+>
+  {#each convertPaperForRender(paper) as item}
+    {#if item === null}
+      <span class="null" />
+    {:else if typeof item.value === 'boolean'}
+      <span class="box" />
+    {:else}
+      <!-- svelte-ignore a11y-mouse-events-have-key-events -->
+      <span
+        class="border border-{item.position}"
+        on:mouseover={() => {
+          if (item) {
+            switch (item.position) {
+              case 'top':
+                hoverWith = {
+                  row: item.row - 1,
+                  col: item.col,
+                  position: 'bottom',
+                };
+                break;
+              case 'bottom':
+                hoverWith = {
+                  row: item.row + 1,
+                  col: item.col,
+                  position: 'top',
+                };
+                break;
+              case 'left':
+                hoverWith = {
+                  row: item.row,
+                  col: item.col - 1,
+                  position: 'right',
+                };
+                break;
+              case 'right':
+                hoverWith = {
+                  row: item.row,
+                  col: item.col + 1,
+                  position: 'left',
+                };
+                break;
+            }
+          }
+        }}
+        on:mouseleave={() => {
+          hoverWith = { row: -1, col: -1, position: 'top' };
+        }}
+        class:hoverWith={hoverWith.row === item.row &&
+          hoverWith.col === item.col &&
+          hoverWith.position === item.position}>{item.value}</span
+      >
+    {/if}
+  {/each}
 </div>
 
-<!-- convert peparTypes to renderHTML  -->
 <style>
   :global(*) {
     margin: 0;
@@ -104,12 +152,40 @@
   }
 
   .container {
-    display: grid;
-    grid-template-columns: 20px 50px 20px 20px 50px 20px;
-    grid-template-rows: 20px 50px 20px 20px 50px 20px 20px;
-  }
-  span {
-    overflow-wrap: anywhere;
+    display: inline-grid;
+    grid-template-columns: var(--colums);
+    grid-template-rows: var(--rows);
     border: 1px solid black;
+  }
+
+  .box {
+    border: 1px solid black;
+  }
+
+  .border {
+    border-style: solid;
+    border-color: black;
+  }
+
+  .border-top,
+  .border-bottom {
+    border-width: 0 1px 0 1px;
+  }
+
+  .border-right,
+  .border-left {
+    border-width: 1px 0 1px 0;
+  }
+
+  .border:hover {
+    background-color: red;
+  }
+
+  .hoverWith {
+    background-color: red;
+  }
+
+  .null {
+    background-color: rgb(231, 231, 231);
   }
 </style>
