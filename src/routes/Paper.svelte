@@ -87,11 +87,11 @@
 
 <div
   class="container"
-  style="--colums: {`10px 25px 5px ${'5px 25px 5px '.repeat(
+  style="--colums: {`20px 75px 10px ${'10px 75px 10px '.repeat(
     paper[0].length - 2
-  )}5px 25px 10px`}; --rows: {`10px 25px 5px ${'5px 25px 5px '.repeat(
+  )}10px 75px 20px`}; --rows: {`20px 75px 10px ${'10px 75px 10px '.repeat(
     paper.length - 2
-  )}5px 25px 10px`}"
+  )}10px 75px 20px`}"
 >
   {#each convertPaperForRender(paper) as item}
     {#if item === null}
