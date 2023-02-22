@@ -70,12 +70,12 @@
 </script>
 
 <div
-  class="container"
-  style="--colums: {`20px 75px 10px ${'10px 75px 10px '.repeat(
+  class="paper"
+  style="--colums: {`30px 70px 15px ${'15px 70px 15px '.repeat(
     $gameStateR.publicState?.paper?.[0].length - 2
-  )}10px 75px 20px`}; --rows: {`20px 75px 10px ${'10px 75px 10px '.repeat(
+  )}15px 70px 30px`}; --rows: {`30px 70px 15px ${'15px 70px 15px '.repeat(
     $gameStateR.publicState?.paper?.length - 2
-  )}10px 75px 20px`}"
+  )}15px 70px 30px`}"
 >
   {#each convertPaperForRender($gameStateR.publicState?.paper) as item}
     {#if item === null}
@@ -84,7 +84,7 @@
       <span
         class="box"
         style="--boxcolor: {// @ts-ignore
-        $gameStateR.userStates.get(item.value)?.color}"
+        $gameStateR.userStates.get(item.value)?.color ?? '#e8e8e8'}"
       />
     {:else}
       <!-- svelte-ignore a11y-mouse-events-have-key-events -->
@@ -174,31 +174,32 @@
 </div>
 
 <style>
-  .container {
+  .paper {
     display: inline-grid;
     grid-template-columns: var(--colums);
     grid-template-rows: var(--rows);
-    border: 1px solid black;
+    border: 2px solid rgb(65, 65, 65);
+    background: white;
   }
 
   .box {
-    border: 1px solid black;
+    border: 2px solid rgb(65, 65, 65);
     background-color: var(--boxcolor);
   }
 
   .border {
     border-style: solid;
-    border-color: black;
+    border-color: rgb(65, 65, 65);
   }
 
   .border-top,
   .border-bottom {
-    border-width: 0 1px 0 1px;
+    border-width: 0 2px 0 2px;
   }
 
   .border-right,
   .border-left {
-    border-width: 1px 0 1px 0;
+    border-width: 2px 0 2px 0;
   }
 
   .hover {
@@ -212,6 +213,6 @@
 
   .null {
     background-color: rgb(231, 231, 231);
-    background-color: black;
+    background-color: rgb(65, 65, 65);
   }
 </style>
