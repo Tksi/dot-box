@@ -2,8 +2,8 @@
   import { gameStateR, gameStateW, myUserId } from '$/store';
   import { shuffleArr } from '$lib/shuffleArr';
 
-  const ROW = 3;
-  const COL = 3;
+  const ROW = Math.trunc(Math.random() * 2) + 3;
+  const COL = Math.trunc(Math.random() * 2) + 3;
   const COLORTABLE = [
     '#ef5350',
     '#42a5f5',
@@ -48,6 +48,20 @@
 
     $gameStateW = $gameStateR;
   };
+
+  const getUserScore = (userId: string) => {
+    if (!$gameStateR.publicState.paper) return 0;
+
+    return $gameStateR.publicState.paper
+      .map((boards) => {
+        return boards.filter((board) => {
+          return board.filled === userId;
+        }).length;
+      })
+      .reduce((a, b) => {
+        return a + b;
+      });
+  };
 </script>
 
 {#if $gameStateR.userStates}
@@ -57,7 +71,7 @@
         class:myTurn={$gameStateR.publicState.turnUserId === userState[0]}
         style="--theme-color: {userState[1].color}"
       >
-        user名:{userState[1].userName}
+        {userState[1].userName}:{getUserScore(userState[0])}点
       </p>
     </div>
   {/each}

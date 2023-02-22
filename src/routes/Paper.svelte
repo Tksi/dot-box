@@ -27,13 +27,15 @@
   const onBorderClick = () => {
     if (!isMyTurn) return;
 
+    let willNextTurn = true;
+
     for (const item of hover) {
       if (
         $gameStateR.publicState.paper?.[item.row]?.[item.col]?.[
           item.position
         ] !== undefined
       ) {
-        // すでにborderが弾かれている
+        // すでにborderが塗られている場合は弾く
         if (
           $gameStateR.publicState.paper[item.row][item.col][item.position] !==
           null
@@ -44,7 +46,7 @@
         $gameStateR.publicState.paper[item.row][item.col][item.position] =
           $myUserId;
 
-        // box埋めチェック
+        // box埋めるかチェック
         console.log(
           Object.values($gameStateR.publicState.paper[item.row][item.col])
         );
@@ -56,13 +58,13 @@
           $gameStateR.publicState.paper[item.row][item.col].right
         ) {
           $gameStateR.publicState.paper[item.row][item.col].filled = $myUserId;
+          willNextTurn = false;
         }
-
-        $gameStateW = $gameStateR;
       }
     }
 
-    nextTurn();
+    $gameStateW = $gameStateR;
+    if (willNextTurn) nextTurn();
   };
 </script>
 
