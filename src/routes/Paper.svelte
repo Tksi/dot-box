@@ -42,10 +42,6 @@
           $myUserId;
 
         // box埋めるかチェック
-        console.log(
-          Object.values($gameStateR.publicState.paper[item.row][item.col])
-        );
-
         if (
           $gameStateR.publicState.paper[item.row][item.col].bottom &&
           $gameStateR.publicState.paper[item.row][item.col].top &&

@@ -2,8 +2,6 @@
   import { gameStateR, gameStateW } from '$/store';
   import { shuffleArr } from '$lib/shuffleArr';
 
-  const ROW = Math.trunc(Math.random() * 2) + 2;
-  const COL = Math.trunc(Math.random() * 2) + 2;
   const COLORTABLE = [
     '#ef5350',
     '#42a5f5',
@@ -33,6 +31,15 @@
         { row: -1, col: -1, position: 'top' },
         { row: -1, col: -1, position: 'top' },
       ];
+
+      const ROW =
+        Math.trunc(Math.random() * $gameStateR.userStates?.size) +
+        $gameStateR.userStates?.size +
+        1;
+      const COL =
+        Math.trunc(Math.random() * $gameStateR.userStates?.size) +
+        $gameStateR.userStates?.size +
+        1;
       $gameStateR.publicState.paper = new Array(ROW).fill(null).map((_) => {
         return new Array(COL).fill(null).map((_) => {
           return {
