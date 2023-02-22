@@ -1,102 +1,10 @@
 <script lang="ts">
   import { gameStateW, gameStateR, myUserId } from '$/store';
-  import type { StatePublic } from '$/store';
-  import type { UserId } from '$types';
-
-  // const paper: Paper = [
-  //   [
-  //     { top: '', left: '', bottom: '', right: '' },
-  //     { top: '', left: '', bottom: '', right: '' },
-  //     { top: '', left: '', bottom: '', right: '' },
-  //   ],
-  //   [
-  //     { top: '', left: '', bottom: '', right: '' },
-  //     { top: '', left: '', bottom: '', right: '' },
-  //     { top: '', left: '', bottom: '', right: '' },
-  //   ],
-  //   [
-  //     { top: '', left: '', bottom: '', right: '' },
-  //     { top: '', left: '', bottom: '', right: '' },
-  //     { top: '', left: '', bottom: '', right: '' },
-  //   ],
-  // ];
+  import { convertPaperForRender } from '$lib/convertPaperForRender';
 
   $: isMyTurn = $myUserId && $gameStateR.publicState?.turnUserId === $myUserId;
 
-  $: console.log(isMyTurn);
-
-  const convertPaperForRender = (paper: StatePublic['paper']) => {
-    if (paper === undefined) return [];
-    let renderedPaper: ({
-      row: number;
-      col: number;
-      position: 'bottom' | 'box' | 'left' | 'right' | 'top';
-      value: UserId | null | boolean;
-    } | null)[][] = new Array(paper.length * 3)
-      .fill('')
-      .map(() => new Array(paper[0].length * 3).fill(''));
-
-    for (const [i, row] of Object.entries(paper)) {
-      for (const [j, col] of Object.entries(row)) {
-        for (let k = 0; k < 3; k++) {
-          if (k === 0 || k === 2) {
-            renderedPaper[Number(i) * 3 + k][Number(j) * 3] = null;
-            renderedPaper[Number(i) * 3 + k][Number(j) * 3 + 2] = null;
-
-            if (k == 0) {
-              renderedPaper[Number(i) * 3 + k][Number(j) * 3 + 1] = {
-                row: Number(i),
-                col: Number(j),
-                position: 'top',
-                value: col.top,
-              };
-            } else {
-              renderedPaper[Number(i) * 3 + k][Number(j) * 3 + 1] = {
-                row: Number(i),
-                col: Number(j),
-                position: 'bottom',
-                value: col.bottom,
-              };
-            }
-          } else {
-            renderedPaper[Number(i) * 3 + k][Number(j) * 3] = {
-              row: Number(i),
-              col: Number(j),
-              position: 'left',
-              value: col.left,
-            };
-            renderedPaper[Number(i) * 3 + k][Number(j) * 3 + 1] = {
-              row: Number(i),
-              col: Number(j),
-              position: 'box',
-              value: false,
-            };
-            renderedPaper[Number(i) * 3 + k][Number(j) * 3 + 2] = {
-              row: Number(i),
-              col: Number(j),
-              position: 'right',
-              value: col.right,
-            };
-          }
-        }
-      }
-    }
-
-    return renderedPaper.flat().flat();
-  };
-
-  // let hover: {
-  //   row: number;
-  //   col: number;
-  //   position: 'bottom' | 'left' | 'right' | 'top';
-  // }[] = [
-  //   { row: -1, col: -1, position: 'top' },
-  //   { row: -1, col: -1, position: 'top' },
-  // ];
-
   $: hover = $gameStateR.publicState?.hover;
-
-  $: console.log(hover);
 </script>
 
 <div
@@ -114,6 +22,7 @@
       <span class="box" />
     {:else}
       <!-- svelte-ignore a11y-mouse-events-have-key-events -->
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
       <span
         class="border border-{item.position}"
         on:mouseover={() => {
@@ -176,6 +85,22 @@
           hover[1] = { row: -1, col: -1, position: 'top' };
           $gameStateW = $gameStateR;
         }}
+        on:click={() => {
+          if (item && isMyTurn) {
+            for (const item of hover) {
+              if (
+                $gameStateR.publicState.paper?.[item.row]?.[item.col]?.[
+                  item.position
+                ] !== undefined
+              ) {
+                $gameStateR.publicState.paper[item.row][item.col][
+                  item.position
+                ] = $myUserId;
+                $gameStateW = $gameStateR;
+              }
+            }
+          }
+        }}
         class:hover={hover.some(({ row, col, position }) => {
           return (
             item &&
@@ -188,6 +113,7 @@
           // @ts-ignore
           $gameStateR.publicState?.turnUserId
         )?.color}"
+        class:fixed={item.value}
       />
     {/if}
   {/each}
@@ -221,6 +147,10 @@
   }
 
   .hover {
+    background-color: var(--theme-color);
+  }
+
+  .fixed {
     background-color: var(--theme-color);
   }
 

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { gameStateW, gameStateR, myUserId } from '$/store';
+  import { gameStateW, gameStateR } from '$/store';
   import { shuffleArr } from '$lib/shuffleArr';
-  import { generateRandomColor } from '$lib/generateRandomColor';
+
   const ROW = 3;
   const COL = 3;
   const COLORTABLE = [
