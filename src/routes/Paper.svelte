@@ -1,30 +1,37 @@
 <script lang="ts">
-  type Paper = { top: string; left: string; right: string; bottom: string }[][];
+  import { gameStateW, gameStateR, myUserId } from '$/store';
+  import type { StatePublic } from '$/store';
+  import type { UserId } from '$types';
 
-  const paper: Paper = [
-    [
-      { top: '', left: '', bottom: '', right: '' },
-      { top: '', left: '', bottom: '', right: '' },
-      { top: '', left: '', bottom: '', right: '' },
-    ],
-    [
-      { top: '', left: '', bottom: '', right: '' },
-      { top: '', left: '', bottom: '', right: '' },
-      { top: '', left: '', bottom: '', right: '' },
-    ],
-    [
-      { top: '', left: '', bottom: '', right: '' },
-      { top: '', left: '', bottom: '', right: '' },
-      { top: '', left: '', bottom: '', right: '' },
-    ],
-  ];
+  // const paper: Paper = [
+  //   [
+  //     { top: '', left: '', bottom: '', right: '' },
+  //     { top: '', left: '', bottom: '', right: '' },
+  //     { top: '', left: '', bottom: '', right: '' },
+  //   ],
+  //   [
+  //     { top: '', left: '', bottom: '', right: '' },
+  //     { top: '', left: '', bottom: '', right: '' },
+  //     { top: '', left: '', bottom: '', right: '' },
+  //   ],
+  //   [
+  //     { top: '', left: '', bottom: '', right: '' },
+  //     { top: '', left: '', bottom: '', right: '' },
+  //     { top: '', left: '', bottom: '', right: '' },
+  //   ],
+  // ];
 
-  const convertPaperForRender = (paper: Paper) => {
+  $: isMyTurn = $myUserId && $gameStateR.publicState?.turnUserId === $myUserId;
+
+  $: console.log(isMyTurn);
+
+  const convertPaperForRender = (paper: StatePublic['paper']) => {
+    if (paper === undefined) return [];
     let renderedPaper: ({
       row: number;
       col: number;
       position: 'bottom' | 'box' | 'left' | 'right' | 'top';
-      value: boolean | string;
+      value: UserId | null | boolean;
     } | null)[][] = new Array(paper.length * 3)
       .fill('')
       .map(() => new Array(paper[0].length * 3).fill(''));
@@ -82,18 +89,21 @@
     row: number;
     col: number;
     position: 'bottom' | 'left' | 'right' | 'top';
-  } = { row: -1, col: -1, position: 'top' };
+  }[] = [
+    { row: -1, col: -1, position: 'top' },
+    { row: -1, col: -1, position: 'top' },
+  ];
 </script>
 
 <div
   class="container"
   style="--colums: {`20px 75px 10px ${'10px 75px 10px '.repeat(
-    paper[0].length - 2
+    $gameStateR.publicState?.paper?.[0].length - 2
   )}10px 75px 20px`}; --rows: {`20px 75px 10px ${'10px 75px 10px '.repeat(
-    paper.length - 2
+    $gameStateR.publicState?.paper?.length - 2
   )}10px 75px 20px`}"
 >
-  {#each convertPaperForRender(paper) as item}
+  {#each convertPaperForRender($gameStateR.publicState?.paper) as item}
     {#if item === null}
       <span class="null" />
     {:else if typeof item.value === 'boolean'}
@@ -103,10 +113,18 @@
       <span
         class="border border-{item.position}"
         on:mouseover={() => {
-          if (item) {
+          if (!isMyTurn) return;
+
+          if (item && item.position !== 'box') {
+            hoverWith[0] = {
+              row: item.row,
+              col: item.col,
+              position: item.position,
+            };
+
             switch (item.position) {
               case 'top': {
-                hoverWith = {
+                hoverWith[1] = {
                   row: item.row - 1,
                   col: item.col,
                   position: 'bottom',
@@ -116,7 +134,7 @@
               }
 
               case 'bottom': {
-                hoverWith = {
+                hoverWith[1] = {
                   row: item.row + 1,
                   col: item.col,
                   position: 'top',
@@ -126,7 +144,7 @@
               }
 
               case 'left': {
-                hoverWith = {
+                hoverWith[1] = {
                   row: item.row,
                   col: item.col - 1,
                   position: 'right',
@@ -136,7 +154,7 @@
               }
 
               case 'right': {
-                hoverWith = {
+                hoverWith[1] = {
                   row: item.row,
                   col: item.col + 1,
                   position: 'left',
@@ -148,23 +166,24 @@
           }
         }}
         on:mouseleave={() => {
-          hoverWith = { row: -1, col: -1, position: 'top' };
+          if (!isMyTurn) return;
+          hoverWith[0] = { row: -1, col: -1, position: 'top' };
+          hoverWith[1] = { row: -1, col: -1, position: 'top' };
         }}
-        class:hoverWith={hoverWith.row === item.row &&
-          hoverWith.col === item.col &&
-          hoverWith.position === item.position}>{item.value}</span
-      >
+        class:hoverWith={hoverWith.some(({ row, col, position }) => {
+          return (
+            item &&
+            row === item.row &&
+            col === item.col &&
+            position === item.position
+          );
+        })}
+      />
     {/if}
   {/each}
 </div>
 
 <style>
-  :global(*) {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
   .container {
     display: inline-grid;
     grid-template-columns: var(--colums);
@@ -189,10 +208,6 @@
   .border-right,
   .border-left {
     border-width: 1px 0 1px 0;
-  }
-
-  .border:hover {
-    background-color: red;
   }
 
   .hoverWith {
