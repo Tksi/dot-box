@@ -207,6 +207,7 @@
 
   .hover {
     background-color: var(--theme-color);
+    filter: contrast(175%);
   }
 
   .fixed {
