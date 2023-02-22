@@ -1,10 +1,44 @@
 <script lang="ts">
   import { gameStateW, gameStateR, myUserId } from '$/store';
   import { convertPaperForRender } from '$lib/convertPaperForRender';
+  import type { UserId } from '$/store';
 
   $: isMyTurn = $myUserId && $gameStateR.publicState?.turnUserId === $myUserId;
 
   $: hover = $gameStateR.publicState?.hover;
+
+  const nextUserId = (): UserId => {
+    const turn = $gameStateR.publicState.turnUserId;
+    const userIds = [...$gameStateR.userStates.keys()];
+    let index = userIds.findIndex((userId) => userId === turn);
+    if (++index >= userIds.length) {
+      index = 0;
+    }
+    return userIds[index];
+  };
+
+  const onBorderClick = () => {
+    if (isMyTurn) {
+      for (const item of hover) {
+        if (
+          $gameStateR.publicState.paper?.[item.row]?.[item.col]?.[
+            item.position
+          ] !== undefined
+        ) {
+          $gameStateR.publicState.paper[item.row][item.col][item.position] =
+            $myUserId;
+          $gameStateW = $gameStateR;
+        }
+      }
+    }
+
+    nextTurn();
+  };
+
+  const nextTurn = () => {
+    $gameStateR.publicState.turnUserId = nextUserId();
+    $gameStateW = $gameStateR;
+  };
 </script>
 
 <div
@@ -85,22 +119,7 @@
           hover[1] = { row: -1, col: -1, position: 'top' };
           $gameStateW = $gameStateR;
         }}
-        on:click={() => {
-          if (item && isMyTurn) {
-            for (const item of hover) {
-              if (
-                $gameStateR.publicState.paper?.[item.row]?.[item.col]?.[
-                  item.position
-                ] !== undefined
-              ) {
-                $gameStateR.publicState.paper[item.row][item.col][
-                  item.position
-                ] = $myUserId;
-                $gameStateW = $gameStateR;
-              }
-            }
-          }
-        }}
+        on:click={onBorderClick}
         class:hover={hover.some(({ row, col, position }) => {
           return (
             item &&
@@ -112,7 +131,9 @@
         style="--theme-color: {$gameStateR.userStates?.get(
           // @ts-ignore
           $gameStateR.publicState?.turnUserId
-        )?.color}"
+        )?.color}; --fixed-color: {item.value &&
+          $gameStateR.userStates?.get(item.value)?.color}
+        "
         class:fixed={item.value}
       />
     {/if}
@@ -151,7 +172,7 @@
   }
 
   .fixed {
-    background-color: var(--theme-color);
+    background-color: var(--fixed-color);
   }
 
   .null {
