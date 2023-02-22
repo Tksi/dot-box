@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { gameStateW, gameStateR } from '$/store';
+  import { gameStateR, gameStateW, myUserId } from '$/store';
   import { shuffleArr } from '$lib/shuffleArr';
 
   const ROW = 3;
@@ -20,9 +20,11 @@
   const start = () => {
     if ($gameStateR.userStates?.entries() ?? undefined !== undefined) {
       const userStateArr = [...$gameStateR.userStates?.entries()];
+
       for (let [i, userState] of Object.entries(userStateArr)) {
         userState[1].color = COLORTABLE[Number(i)];
       }
+
       const shuffledUserStateArr = shuffleArr(userStateArr);
       const shuffledUserStateMap = new Map(shuffledUserStateArr);
       $gameStateR.userStates = shuffledUserStateMap;
@@ -31,19 +33,19 @@
         { row: -1, col: -1, position: 'top' },
         { row: -1, col: -1, position: 'top' },
       ];
-      $gameStateR.publicState.paper = Array(ROW)
-        .fill(null)
-        .map((_) => {
-          return new Array(COL).fill(null).map((_) => {
-            return {
-              top: null,
-              right: null,
-              left: null,
-              bottom: null,
-            };
-          });
+      $gameStateR.publicState.paper = new Array(ROW).fill(null).map((_) => {
+        return new Array(COL).fill(null).map((_) => {
+          return {
+            top: null,
+            right: null,
+            left: null,
+            bottom: null,
+            filled: null,
+          };
         });
+      });
     }
+
     $gameStateW = $gameStateR;
   };
 </script>

@@ -7,7 +7,7 @@ export const convertPaperForRender = (paper: StatePublic['paper']) => {
     row: number;
     col: number;
     position: 'bottom' | 'box' | 'left' | 'right' | 'top';
-    value: UserId | boolean | null;
+    value: UserId | null;
   } | null)[][] = new Array(paper.length * 3)
     .fill('')
     .map(() => new Array(paper[0].length * 3).fill(''));
@@ -46,7 +46,7 @@ export const convertPaperForRender = (paper: StatePublic['paper']) => {
             row: Number(i),
             col: Number(j),
             position: 'box',
-            value: false,
+            value: col.filled,
           };
           renderedPaper[Number(i) * 3 + k][Number(j) * 3 + 2] = {
             row: Number(i),

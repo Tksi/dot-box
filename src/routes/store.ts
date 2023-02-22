@@ -11,6 +11,7 @@ export type StatePublic = {
     left: UserId | null;
     right: UserId | null;
     bottom: UserId | null;
+    filled: UserId | null;
   }[][];
   hover: {
     row: number;

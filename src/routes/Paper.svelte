@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { gameStateW, gameStateR, myUserId } from '$/store';
+  import type { UserId } from '$types';
+  import { gameStateR, gameStateW, myUserId } from '$/store';
   import { convertPaperForRender } from '$lib/convertPaperForRender';
-  import type { UserId } from '$/store';
 
   $: isMyTurn = $myUserId && $gameStateR.publicState?.turnUserId === $myUserId;
 
@@ -11,33 +11,35 @@
     const turn = $gameStateR.publicState.turnUserId;
     const userIds = [...$gameStateR.userStates.keys()];
     let index = userIds.findIndex((userId) => userId === turn);
+
     if (++index >= userIds.length) {
       index = 0;
     }
+
     return userIds[index];
-  };
-
-  const onBorderClick = () => {
-    if (isMyTurn) {
-      for (const item of hover) {
-        if (
-          $gameStateR.publicState.paper?.[item.row]?.[item.col]?.[
-            item.position
-          ] !== undefined
-        ) {
-          $gameStateR.publicState.paper[item.row][item.col][item.position] =
-            $myUserId;
-          $gameStateW = $gameStateR;
-        }
-      }
-    }
-
-    nextTurn();
   };
 
   const nextTurn = () => {
     $gameStateR.publicState.turnUserId = nextUserId();
     $gameStateW = $gameStateR;
+  };
+
+  const onBorderClick = () => {
+    if (!isMyTurn) return;
+
+    for (const item of hover) {
+      if (
+        $gameStateR.publicState.paper?.[item.row]?.[item.col]?.[
+          item.position
+        ] !== undefined
+      ) {
+        $gameStateR.publicState.paper[item.row][item.col][item.position] =
+          $myUserId;
+        $gameStateW = $gameStateR;
+      }
+    }
+
+    nextTurn();
   };
 </script>
 
@@ -52,8 +54,12 @@
   {#each convertPaperForRender($gameStateR.publicState?.paper) as item}
     {#if item === null}
       <span class="null" />
-    {:else if typeof item.value === 'boolean'}
-      <span class="box" />
+    {:else if item.position === 'box'}
+      <span
+        class="box"
+        style="--boxcolor: {// @ts-ignore
+        $gameStateR.userStates.get(item.value)?.color}"
+      />
     {:else}
       <!-- svelte-ignore a11y-mouse-events-have-key-events -->
       <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -110,6 +116,7 @@
                 break;
               }
             }
+
             $gameStateW = $gameStateR;
           }
         }}
@@ -150,6 +157,7 @@
 
   .box {
     border: 1px solid black;
+    background-color: var(--boxcolor);
   }
 
   .border {
