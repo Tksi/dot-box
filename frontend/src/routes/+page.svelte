@@ -3,6 +3,11 @@
   import Score from './Score.svelte';
 </script>
 
+<svelte:head>
+  <title>Dot-Box</title>
+  <meta name="robots" content="noindex nofollow" />
+</svelte:head>
+
 <div class="container">
   <Score />
   <Paper />
