@@ -6,8 +6,8 @@
   const COL = 3;
   const COLORTABLE = [
     '#ef5350',
-    '#ba68c8',
     '#42a5f5',
+    '#ba68c8',
     '#26a69a',
     '#66bb6a',
     '#d4e157',
@@ -27,7 +27,10 @@
       const shuffledUserStateMap = new Map(shuffledUserStateArr);
       $gameStateR.userStates = shuffledUserStateMap;
       $gameStateR.publicState.turnUserId = shuffledUserStateArr[0][0];
-
+      $gameStateR.publicState.hover = [
+        { row: -1, col: -1, position: 'top' },
+        { row: -1, col: -1, position: 'top' },
+      ];
       $gameStateR.publicState.paper = Array(ROW)
         .fill(null)
         .map((_) => {

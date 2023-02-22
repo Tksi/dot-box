@@ -85,14 +85,18 @@
     return renderedPaper.flat().flat();
   };
 
-  let hoverWith: {
-    row: number;
-    col: number;
-    position: 'bottom' | 'left' | 'right' | 'top';
-  }[] = [
-    { row: -1, col: -1, position: 'top' },
-    { row: -1, col: -1, position: 'top' },
-  ];
+  // let hover: {
+  //   row: number;
+  //   col: number;
+  //   position: 'bottom' | 'left' | 'right' | 'top';
+  // }[] = [
+  //   { row: -1, col: -1, position: 'top' },
+  //   { row: -1, col: -1, position: 'top' },
+  // ];
+
+  $: hover = $gameStateR.publicState?.hover;
+
+  $: console.log(hover);
 </script>
 
 <div
@@ -116,7 +120,7 @@
           if (!isMyTurn) return;
 
           if (item && item.position !== 'box') {
-            hoverWith[0] = {
+            hover[0] = {
               row: item.row,
               col: item.col,
               position: item.position,
@@ -124,7 +128,7 @@
 
             switch (item.position) {
               case 'top': {
-                hoverWith[1] = {
+                hover[1] = {
                   row: item.row - 1,
                   col: item.col,
                   position: 'bottom',
@@ -134,7 +138,7 @@
               }
 
               case 'bottom': {
-                hoverWith[1] = {
+                hover[1] = {
                   row: item.row + 1,
                   col: item.col,
                   position: 'top',
@@ -144,7 +148,7 @@
               }
 
               case 'left': {
-                hoverWith[1] = {
+                hover[1] = {
                   row: item.row,
                   col: item.col - 1,
                   position: 'right',
@@ -154,7 +158,7 @@
               }
 
               case 'right': {
-                hoverWith[1] = {
+                hover[1] = {
                   row: item.row,
                   col: item.col + 1,
                   position: 'left',
@@ -163,14 +167,16 @@
                 break;
               }
             }
+            $gameStateW = $gameStateR;
           }
         }}
         on:mouseleave={() => {
           if (!isMyTurn) return;
-          hoverWith[0] = { row: -1, col: -1, position: 'top' };
-          hoverWith[1] = { row: -1, col: -1, position: 'top' };
+          hover[0] = { row: -1, col: -1, position: 'top' };
+          hover[1] = { row: -1, col: -1, position: 'top' };
+          $gameStateW = $gameStateR;
         }}
-        class:hoverWith={hoverWith.some(({ row, col, position }) => {
+        class:hover={hover.some(({ row, col, position }) => {
           return (
             item &&
             row === item.row &&
@@ -178,6 +184,10 @@
             position === item.position
           );
         })}
+        style="--theme-color: {$gameStateR.userStates?.get(
+          // @ts-ignore
+          $gameStateR.publicState?.turnUserId
+        )?.color}"
       />
     {/if}
   {/each}
@@ -210,8 +220,8 @@
     border-width: 1px 0 1px 0;
   }
 
-  .hoverWith {
-    background-color: red;
+  .hover {
+    background-color: var(--theme-color);
   }
 
   .null {

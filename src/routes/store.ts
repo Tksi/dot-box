@@ -12,6 +12,11 @@ export type StatePublic = {
     right: UserId | null;
     bottom: UserId | null;
   }[][];
+  hover: {
+    row: number;
+    col: number;
+    position: 'bottom' | 'left' | 'right' | 'top';
+  }[];
 };
 
 export type StateUser = { color: string };
