@@ -33,8 +33,31 @@
           item.position
         ] !== undefined
       ) {
+        // すでにborderが弾かれている
+        if (
+          $gameStateR.publicState.paper[item.row][item.col][item.position] !==
+          null
+        ) {
+          return;
+        }
+
         $gameStateR.publicState.paper[item.row][item.col][item.position] =
           $myUserId;
+
+        // box埋めチェック
+        console.log(
+          Object.values($gameStateR.publicState.paper[item.row][item.col])
+        );
+
+        if (
+          $gameStateR.publicState.paper[item.row][item.col].bottom &&
+          $gameStateR.publicState.paper[item.row][item.col].top &&
+          $gameStateR.publicState.paper[item.row][item.col].left &&
+          $gameStateR.publicState.paper[item.row][item.col].right
+        ) {
+          $gameStateR.publicState.paper[item.row][item.col].filled = $myUserId;
+        }
+
         $gameStateW = $gameStateR;
       }
     }
