@@ -33,7 +33,7 @@ let gameId: GameId;
 gameStateW.subscribe((state) => {
   gameStateR.set(get(gameStateW));
 
-  if (ws && state.publicState.turnUserId !== null) {
+  if (ws) {
     ws.send(
       JSON.stringify(
         {
@@ -83,7 +83,6 @@ if (browser) {
         StatePublic,
         StateUser
       >;
-      console.debug(message);
 
       switch (message.type) {
         case 'USERID': {

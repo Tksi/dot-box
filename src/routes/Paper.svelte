@@ -19,11 +19,6 @@
     return userIds[index];
   };
 
-  const nextTurn = () => {
-    $gameStateR.publicState.turnUserId = nextUserId();
-    $gameStateW = $gameStateR;
-  };
-
   const onBorderClick = () => {
     if (!isMyTurn) return;
 
@@ -63,8 +58,18 @@
       }
     }
 
+    if (
+      $gameStateR.publicState.paper.every((row) =>
+        row.every((col) => col.filled)
+      )
+    ) {
+      //ゲーム終了
+      $gameStateR.publicState.turnUserId = null;
+    } else {
+      if (willNextTurn) $gameStateR.publicState.turnUserId = nextUserId();
+    }
+
     $gameStateW = $gameStateR;
-    if (willNextTurn) nextTurn();
   };
 </script>
 

@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { gameStateR, gameStateW, myUserId } from '$/store';
+  import { gameStateR, gameStateW } from '$/store';
   import { shuffleArr } from '$lib/shuffleArr';
 
-  const ROW = Math.trunc(Math.random() * 2) + 3;
-  const COL = Math.trunc(Math.random() * 2) + 3;
+  const ROW = Math.trunc(Math.random() * 2) + 2;
+  const COL = Math.trunc(Math.random() * 2) + 2;
   const COLORTABLE = [
     '#ef5350',
     '#42a5f5',
@@ -77,7 +77,7 @@
   {/each}
 {/if}
 
-{#if $gameStateR.userStates?.size > 1 && !$gameStateR.publicState.turnUserId}
+{#if $gameStateR.userStates?.size > 1 && $gameStateR.publicState.turnUserId === null}
   <div>
     <button on:click={start}>Start</button>
   </div>
